@@ -1,0 +1,191 @@
+<html>
+    <head>
+        <title>DControl</title>
+        <meta http-equiv="X-UA-Compatible" content="IE-edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body {
+                background-color: #f5f5f5;
+                color: #555;
+                margin: auto;
+                text-align: center;
+                font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+                max-width: 1200px;
+            }
+
+            .b {
+                margin: 5px;
+                border: 1px solid #ABC3D1;
+                border-radius: 15px;
+            }
+
+            .m {
+                padding: 5px;
+                margin: 6px 5px;
+                font-size: 2.0em;
+                background-color: #B3CFDE;
+                border-radius: 15px;
+                cursor: pointer;
+            }
+
+            .m_t {
+                font-size: 0.3em;
+            }
+
+            .g {
+                margin: 5px;
+                display: grid;
+                grid-gap: 5px;
+                align-content: center;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 2fr));
+            }
+
+            .g_d {
+                padding: 5px 0px;
+                border: 1px solid #ABC3D1;
+                border-radius: 15px;
+            }
+
+            .g_d_s {
+                font-size: 0.6em;
+            }
+
+            p, .p_h {
+                margin: 5px;
+                padding: 4px 5px;
+                background-color: #D0E3ED;
+                border-radius: 15px;
+                font-size: 0.8em;
+            }
+
+            .p_h:hover {
+                background-color: #BADAEC;
+                cursor: pointer;
+            }
+
+            input {
+                display: block;
+                width: 100%;
+                padding: 1px;
+                border-radius: 15px;
+                border: 0px;
+                background-color: #f5f5f5;
+                text-align: center;
+            }
+
+            input:hover, input:focus {
+                opacity: .7;
+                color: #08c;
+                box-shadow: 0px 1px 0px rgba(255,255,255,.25),inset 0px 3px 6px rgba(0,0,0,.25);
+            }
+
+            button, .btn {
+                background: rgba(255,255,255,0);
+                width: 100%;
+                border: 0px;
+                color: #555;
+            }
+
+            input[type=file] {
+                display: none;
+            }
+
+            #txt {
+                display: none;
+            }
+
+            .i_g {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(50px, 2fr));
+            }
+
+            .i_t {
+                font-size: 0.8em;
+            }
+
+            .At {
+                font-size: 2.0em;
+                background-color: #f5f5f5;
+            }
+
+            .Mx {
+                background-color: #EDD0D4;
+            }
+
+            .Md {
+                background-color: #D4EDD0;
+            }
+
+            .Mi {
+                background-color: #D6E6EF;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="b">
+            <div class="m" onclick="location.href='/'">
+                <div>Levantamento dados dos dispositivos</div>
+            </div>
+            <div class="i_g"><p class="Mi" onclick="f_carregar('160','167','1')">Carregar 1 andar</p> </div>
+            <div class="g_d" id="g_d1"> </div> <br>
+
+            <div class="i_g"><p class="Mi" onclick="f_carregar('169','180','2')">Carregar 2 andar</p> </div>
+            <div class="g_d" id="g_d2"> </div> <br>
+
+            <div class="i_g"><p class="Mi" onclick="f_carregar('185','189','3')">Carregar Exterior</p> </div>
+            <div class="g_d" id="g_d3"> </div> <br>
+
+            <div class="i_g"><p class="Mi" onclick="f_carregar('191','193','4')">Carregar Relogios</p> </div>
+            <div class="g_d" id="g_d4"> </div> <br>
+
+            <div class="i_g"><p class="Mi" onclick="f_carregar_2()">Carregar Rede 2</p> </div>
+            <div class="g_d" id="g_d_2"> </div> <br>
+
+            <script>
+                function f_carregar(x, y,z) {
+                    c_g =  document.getElementById('g_d'+z);
+                    for ( i = x; i <= y ; i ++) {
+                        c_g.innerHTML += '<div class="i_g" id="g_' + i + '"><p class="Md" onclick="f_s(\''+ i + '\')">192.168.1.' + i + '</p> </div>'; 
+                    }
+                }
+                function f_s(x, y, z) {
+                    c_g =  document.getElementById('g_'+x);
+                    const params = { };
+                    const http = new XMLHttpRequest();
+                    http.open('POST', 'http://192.168.1.' + x + '/json_Stat', true);
+                    http.setRequestHeader('Content-type', 'application/json');
+                    http.send(JSON.stringify(params));
+                    http.onload = function() {
+                        data_json = JSON.parse(http.responseText);
+                        c_g.innerHTML += '<p class=\"Mi\">' + data_json.Nome + '</P>'; 
+                        c_g.innerHTML += '<p class=\"Mi\">' + data_json.Versão + '</P>'; 
+                        c_g.innerHTML += '<p class=\"Mi\">' + data_json.MQTT.Connect + '</P>'; 
+                        c_g.innerHTML += '<p class=\"Mi\">' + data_json.MQTT.TryConnect + '</P>'; 
+                        c_g.innerHTML += '<p><a href="http://192.168.1.' + x + '" target="_blank">Abrir</a></p>'
+                    }
+                }
+                function f_carregar_2() {
+                    c_g =  document.getElementById('g_d_2');
+                    for ( i = 1100; i <= 1104 ; i ++) {
+                        c_g.innerHTML += '<div class="i_g" id="g_' + i + '"><p class="Md" onclick="f_s_2(\''+ i + '\')">192.168.1.50:' + i + '</p> </div>'; 
+                    }
+                }
+                function f_s_2(x, y, z) {
+                    c_g =  document.getElementById('g_'+x);
+                    const params = { };
+                    const http = new XMLHttpRequest();
+                    http.open('POST', 'http://192.168.1.50:' + x + '/json_Stat', true);
+                    http.setRequestHeader('Content-type', 'application/json');
+                    http.send(JSON.stringify(params));
+                    http.onload = function() {
+                        data_json = JSON.parse(http.responseText);
+                        c_g.innerHTML += '<p class=\"Mi\">' + data_json.Nome + '</P>'; 
+                        c_g.innerHTML += '<p class=\"Mi\">' + data_json.Versão + '</P>'; 
+                        c_g.innerHTML += '<p class=\"Mi\">' + data_json.MQTT.Connect + '</P>'; 
+                        c_g.innerHTML += '<p class=\"Mi\">' + data_json.MQTT.TryConnect + '</P>'; 
+                        c_g.innerHTML += '<p><a href="http://192.168.1.50:' + x + '" target="_blank">Abrir</a></p>'
+                    }
+                }
+            </script>
+    </body>
+</html>
